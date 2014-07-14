@@ -1,6 +1,9 @@
-
 # an instance of AI generates the best possible move given a current game state
-# AIs are created with functions which are used in the minmax function
+# Minmax requires four functions:
+# - a static evaluation function for "scoring" a given state; @eval_fun
+# - a function determining if a game is over; @game_over_fun
+# - a function to generate all possible moves given a state; @moves_fun
+# - a function to generate a new state given an old state, the player whose turn it is, and the move; @next_state_fun
 class AI:
     def __init__(self, ai_piece, opp, depth,
                  game_over_fun, eval_fun, moves_fun, next_state_fun):

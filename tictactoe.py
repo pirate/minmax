@@ -1,9 +1,11 @@
+blank = "-"
+
 # an implementation for tictactoe AI using minmax and alphabeta pruning
 # board array access is board[col][row]
 
 # boards are always squares
 def make_board(width):
-    return [["_"] * width for _ in xrange(width)]
+    return [[blank] * width for _ in xrange(width)]
         
 # board is a list of columns and we want to print by row
 def print_board(board):
@@ -14,7 +16,7 @@ def print_board(board):
       
 def possible_moves(board):  
     d = len(board)
-    return [(y,x) for y in xrange(d) for x in xrange(d) if board[y][x] == "_"]
+    return [(y,x) for y in xrange(d) for x in xrange(d) if board[y][x] == blank]
 
 # create a new board but with position @(col, row) changed to @player
 def next_state(old, player, (col,row)):
@@ -26,24 +28,24 @@ def next_state(old, player, (col,row)):
 def get_winner(board):
     # look for vertical win
     for col in board:
-        if len(set(col)) == 1 and col[0] != "_":
+        if len(set(col)) == 1 and col[0] != blank:
             return col[0]
             
     # horizontal win
     d = len(board)
     rows = [[board[i][x] for i in xrange(d)] for x in xrange(d)]
     for row in rows:
-        if len(set(row)) == 1 and row[0] != "_":
+        if len(set(row)) == 1 and row[0] != blank:
             return row[0]
             
     # diagonal win: top left to bottom right
     tl_br_diag = [col[i] for i,col in enumerate(board)]
-    if len(set(tl_br_diag)) == 1 and tl_br_diag[0] != "_":
+    if len(set(tl_br_diag)) == 1 and tl_br_diag[0] != blank:
         return tl_br_diag[0]
 
     # bottom left to top right
     bl_tr_diag = [col[-i - 1] for i,col in enumerate(board)]
-    if len(set(bl_tr_diag)) == 1 and bl_tr_diag[0] != "_":
+    if len(set(bl_tr_diag)) == 1 and bl_tr_diag[0] != blank:
         return bl_tr_diag[0]
     
     # no winner
@@ -55,7 +57,7 @@ def game_over(board, player, opp):
 
     for col in board:
         for cell in col:
-            if cell == "_":
+            if cell == blank:
                 return False
     return True
 
@@ -91,7 +93,7 @@ def repl():
         print_board(board)
         input = raw_input()
         y, x = map(int, input.split())
-        if board[y][x] != "_":
+        if board[y][x] != blank:
             print "Invalid move!"
             continue        
     

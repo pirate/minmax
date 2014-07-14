@@ -1,3 +1,5 @@
+blank = "-"
+
 # general list util
 def lastIndexOf(num, list, last_idx=-1, curr_idx=0):
     if list == []:
@@ -10,21 +12,23 @@ def lastIndexOf(num, list, last_idx=-1, curr_idx=0):
 
 # all boards are rectangular
 def make_board(num_cols=7, num_rows=5):
-    return [["_"] * num_rows for _ in range(num_cols)]
+    return [[blank] * num_rows for _ in range(num_cols)]
         
 # board is a list of columns and we want to print by row
+# prints a blank line before printing the board
 def print_board(board):
+    print
     num_cols, num_rows = len(board), len(board[0])
     for i in range(num_rows):
         row = [board[j][i] for j in range(num_cols)]
         row = map(str, row)
-        print " | ".join(row)
-    print " | ".join(map(str, range(num_cols)))
+        print " ".join(row)
+    print " ".join(map(str, range(num_cols)))
         
 def possible_moves(board):
     moves = []
     for i, col in enumerate(board):
-        if "_" in col:
+        if blank in col:
             moves.append(i)
     return moves
     
@@ -34,7 +38,7 @@ def next_state(old, player, col):
     import copy
     new = copy.deepcopy(old)
     col_to_insert = new[col]
-    row = lastIndexOf("_", col_to_insert)
+    row = lastIndexOf(blank, col_to_insert)
     new[col][row] = player
     return new
 
@@ -42,20 +46,18 @@ def next_state(old, player, col):
 def get_winner(board, you, opp):
     # look for vertical win
     for col in board:
-        if col.count(you) >= 4:
-            return you
-        elif col.count(opp) >= 4:
-            return opp
+        winner = get_winner_list(col)
+        if winner is not None:
+            return winner
             
     num_cols, num_rows = len(board), len(board[0])
 
     # horizontal win
     rows = [[board[col][row] for col in range(num_cols)] for row in range(num_rows)]
     for row in rows:
-        if row.count(you) >= 4:
-            return you
-        elif row.count(opp) >= 4:
-            return opp
+        winner = get_winner_list(row)
+        if winner is not None:
+            return winner
 
     # diagonals
     # negative sloped diags all starting from the 0 row, not including 0 col
@@ -80,12 +82,20 @@ def get_winner(board, you, opp):
     diags.extend(d)
     
     for diag in diags:
-        if diag.count(you) >= 4:
-            return you
-        elif diag.count(opp) >= 4:
-            return opp
-            
+        winner = get_winner_list(diag)
+        if winner is not None:
+            return winner
+
     # no winner
+    return None
+
+# checks if a list has 4 or more consecutive of a element thats not blank
+def get_winner_list(l):
+    import itertools
+    groups = [list(g) for k, g in itertools.groupby(l)]
+    for group in groups:
+        if len(group) >= 4 and group[0] != blank:
+            return group[0]    
     return None
 
 def game_over(board, player, opp):
@@ -95,7 +105,7 @@ def game_over(board, player, opp):
     # if any empty cells, game is not over
     for col in board:
         for cell in col:
-            if cell == "_":
+            if cell == blank:
                 return False
     return True
 
@@ -109,10 +119,13 @@ def evaluate(board, you, opp):
     
 def repl():
     board = make_board()
+    player = "X"
+    opp = "O"
+
     from minmax_ai import AI
-    ai = AI(ai_piece="o",
-            opp="x",
-            depth=3,
+    ai = AI(ai_piece=opp,
+            opp=player,
+            depth=5,
             game_over_fun=game_over,
             eval_fun=evaluate,
             moves_fun=possible_moves,
@@ -120,24 +133,23 @@ def repl():
 
     print "You are X"
     print "Enter your moves as a zero-indexed col number"
+
     while(True):
         print
         print "Your Turn: "
         print_board(board)
         input = raw_input()
         col = int(input)
-        if board[col][0] != "_":
+        if board[col][0] != blank:
             print "Invalid move!"
             continue        
     
-        board = next_state(board, "x", col)
-        print
+        board = next_state(board, player, col)
         print_board(board)
-    
-        winner = get_winner(board, "x", "o")
-        if game_over(board, "x", "o"):
+        winner = get_winner(board, player, opp)
+        if game_over(board, player, opp):
             if winner != None:
-                if winner == "x":
+                if winner == player:
                     print "You win!"
                 else:
                     print "You lose!"
@@ -150,14 +162,13 @@ def repl():
     
         score, ai_move = ai.get_move(board)
         print ai_move
-        board = next_state(board, "o", ai_move)
+        board = next_state(board, opp, ai_move)
         print_board(board)
-
-        winner = get_winner(board, "x", "o")
+        winner = get_winner(board, player, opp)
     
-        if game_over(board, "x", "o"):
+        if game_over(board, player, opp):
             if winner != None:
-                if winner == "x":
+                if winner == player:
                     print "You win!"
                 else:
                     print "You lose!"

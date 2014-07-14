@@ -7,6 +7,7 @@ def make_board(width):
         
 # board is a list of columns and we want to print by row
 def print_board(board):
+    print
     for i in xrange(len(board)):
         row = [board[j][i] for j in xrange(len(board))]
         print " | ".join(row)
@@ -69,9 +70,12 @@ def evaluate(board, you, _):
 # doesn't do any error handling of bad input
 def repl():
     board = make_board(3)
+    player = "X"
+    opp = "O"
+
     from minmax_ai import AI
-    ai = AI(ai_piece="o",
-            opp="x",
+    ai = AI(ai_piece=opp,
+            opp=player,
             depth=9,
             game_over_fun=game_over,
             eval_fun=evaluate,
@@ -80,6 +84,7 @@ def repl():
     
     print "You are X"
     print "Enter your moves as: col row"
+
     while(True):
         print
         print "Your Turn: "
@@ -90,14 +95,12 @@ def repl():
             print "Invalid move!"
             continue        
     
-        board = next_state(board, "x", (y,x))
-        print
+        board = next_state(board, player, (y,x))
         print_board(board)
-    
         winner = get_winner(board)
-        if game_over(board, "x", "o"):
+        if game_over(board, player, opp):
             if winner != None:
-                if winner == "x":
+                if winner == player:
                     print "You win!"
                 else:
                     print "You lose!"
@@ -110,14 +113,12 @@ def repl():
     
         score, ai_move = ai.get_move(board)
         print ai_move
-        board = next_state(board, "o", ai_move)
+        board = next_state(board, opp, ai_move)
         print_board(board)
-
-        winner = get_winner(board)
-    
-        if game_over(board, "x", "o"):
+        winner = get_winner(board)    
+        if game_over(board, player, opp):
             if winner != None:
-                if winner == "x":
+                if winner == player:
                     print "You win!"
                 else:
                     print "You lose!"
